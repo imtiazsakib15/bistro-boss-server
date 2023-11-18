@@ -21,17 +21,23 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
-    const menuCollection = await client.db('bistroDb').collection('menu');
+  const menuCollection = await client.db("bistroDb").collection("menu");
+  const reviewCollection = await client.db("bistroDb").collection("reviews");
+
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-    app.get('/menu', async (req, res) => {
-        const result = await menuCollection.find().toArray();
-        res.send(result);
-    })
-
-
+    // Get all menu from database
+    app.get("/menu", async (req, res) => {
+      const result = await menuCollection.find().toArray();
+      res.send(result);
+    });
+    // Get all reviews from database
+    app.get("/reviews", async (req, res) => {
+      const result = await reviewCollection.find().toArray();
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
