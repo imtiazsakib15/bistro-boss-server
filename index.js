@@ -23,6 +23,7 @@ const client = new MongoClient(uri, {
 async function run() {
   const menuCollection = await client.db("bistroDb").collection("menu");
   const reviewCollection = await client.db("bistroDb").collection("reviews");
+  const cartCollection = await client.db("bistroDb").collection("carts");
 
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -36,6 +37,13 @@ async function run() {
     // Get all reviews from database
     app.get("/reviews", async (req, res) => {
       const result = await reviewCollection.find().toArray();
+      res.send(result);
+    });
+    
+    // Post cart details to database
+    app.post("/carts", async (req, res) => {
+      const cart = req.body;
+      const result = await cartCollection.insertOne(cart);
       res.send(result);
     });
 
