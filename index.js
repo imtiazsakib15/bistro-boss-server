@@ -39,6 +39,12 @@ async function run() {
       const result = await reviewCollection.find().toArray();
       res.send(result);
     });
+    // Get all carts from database filtering by email
+    app.get("/carts", async (req, res) => {
+      const email = req.query?.email;
+      const result = await cartCollection.find({email}).toArray();
+      res.send(result);
+    });
     
     // Post cart details to database
     app.post("/carts", async (req, res) => {
