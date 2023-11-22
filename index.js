@@ -70,6 +70,19 @@ async function run() {
       res.send(result);
     });
 
+    // Update a users role in database
+    app.patch("/users/admin/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateUserRole = {
+        $set: {
+          role: "admin",
+        },
+      };
+      const result = await userCollection.updateOne(filter, updateUserRole);
+      res.send(result);
+    });
+
     // Delete cart details from database
     app.delete("/carts/:id", async (req, res) => {
       const id = req.params.id;
