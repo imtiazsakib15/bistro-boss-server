@@ -24,6 +24,7 @@ async function run() {
   const menuCollection = await client.db("bistroDb").collection("menu");
   const reviewCollection = await client.db("bistroDb").collection("reviews");
   const cartCollection = await client.db("bistroDb").collection("carts");
+  const userCollection = await client.db("bistroDb").collection("users");
 
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -50,6 +51,17 @@ async function run() {
     app.post("/carts", async (req, res) => {
       const cart = req.body;
       const result = await cartCollection.insertOne(cart);
+      res.send(result);
+    });
+
+    // Post user details to database
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const existingUser = await userCollection.findOne({ email: user.email });
+      if (existingUser)
+        return res.send({ message: "User already exists", insertedId: null });
+
+      const result = await userCollection.insertOne(user);
       res.send(result);
     });
 
