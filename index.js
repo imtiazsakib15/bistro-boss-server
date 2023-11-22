@@ -46,6 +46,11 @@ async function run() {
       const result = await cartCollection.find({ email }).toArray();
       res.send(result);
     });
+    // Get all users from database
+    app.get("/users", async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
 
     // Post cart details to database
     app.post("/carts", async (req, res) => {
