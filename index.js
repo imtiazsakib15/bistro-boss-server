@@ -22,6 +22,18 @@ const client = new MongoClient(uri, {
 });
 
 async function run() {
+  // middlewares
+  const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization.split(" ")[1];
+    console.log(token);
+    if (!token) return res.status(401).send({ message: "Forbidden" });
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (err) return res.status(401).send({ message: "Forbidden" });
+      req.user = decoded;
+      next();
+    });
+  };
+
   const menuCollection = await client.db("bistroDb").collection("menu");
   const reviewCollection = await client.db("bistroDb").collection("reviews");
   const cartCollection = await client.db("bistroDb").collection("carts");
@@ -51,19 +63,19 @@ async function run() {
       res.send(result);
     });
     // Get all carts from database filtering by email
-    app.get("/carts", async (req, res) => {
+    app.get("/carts", verifyToken, async (req, res) => {
       const email = req.query?.email;
       const result = await cartCollection.find({ email }).toArray();
       res.send(result);
     });
     // Get all users from database
-    app.get("/users", async (req, res) => {
+    app.get("/users", verifyToken, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
 
     // Post cart details to database
-    app.post("/carts", async (req, res) => {
+    app.post("/carts", verifyToken, async (req, res) => {
       const cart = req.body;
       const result = await cartCollection.insertOne(cart);
       res.send(result);
@@ -81,7 +93,7 @@ async function run() {
     });
 
     // Update a users role in database
-    app.patch("/users/admin/:id", async (req, res) => {
+    app.patch("/users/admin/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const updateUserRole = {
@@ -94,7 +106,7 @@ async function run() {
     });
 
     // Delete cart details from database
-    app.delete("/carts/:id", async (req, res) => {
+    app.delete("/carts/:id", verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await cartCollection.deleteOne(query);
